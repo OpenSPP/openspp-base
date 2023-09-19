@@ -1,2 +1,2 @@
 from . import audit_rule
-from . import ir_module_module
+from . import audit_log
