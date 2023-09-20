@@ -5,6 +5,7 @@ from odoo import _, fields, models
 from odoo.tools.safe_eval import datetime, safe_eval
 
 _logger = logging.getLogger(__name__)
+CUSTOM_LOG_MODELS = "g2p.program"
 
 
 class AuditLog(models.Model):
@@ -38,7 +39,43 @@ class AuditLog(models.Model):
             if not related_logs:
                 continue
             sub_logs.append((field.string, related_logs))
+        custom_logs = self._get_custom_logs()
+        if custom_logs:
+            sub_logs += custom_logs
         return sub_logs
+
+    def _get_custom_logs(self):
+        self.ensure_one()
+        res = []
+        if self.model not in CUSTOM_LOG_MODELS:
+            return res
+        if self.model == "g2p.program":
+            all_manager_model_names = [
+                item[0]
+                for item in self.env[
+                    "g2p.eligibility.manager"
+                ]._selection_manager_ref_id()
+            ]
+            for manager_model in all_manager_model_names:
+                related_records = (
+                    self.env[manager_model]
+                    .sudo()
+                    .search([("program_id", "=", self.res_id)])
+                )
+                related_logs = self.search(
+                    [
+                        ("model", "=", manager_model),
+                        ("res_id", "in", related_records.ids),
+                        (
+                            "create_date",
+                            ">=",
+                            fields.Datetime.add(self.create_date, seconds=-1),
+                        ),
+                        ("user_id", "=", self.user_id.id),
+                    ]
+                )
+                res.append(("Manager", related_logs))
+            return res
 
     def _get_content(self):
         self.ensure_one()
