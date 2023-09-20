@@ -33,6 +33,11 @@ class AuditLog(models.Model):
                         ">=",
                         fields.Datetime.add(self.create_date, seconds=-1),
                     ),
+                    (
+                        "create_date",
+                        "<=",
+                        fields.Datetime.add(self.create_date, seconds=1),
+                    ),
                     ("user_id", "=", self.user_id.id),
                 ]
             )
@@ -70,6 +75,11 @@ class AuditLog(models.Model):
                             "create_date",
                             ">=",
                             fields.Datetime.add(self.create_date, seconds=-1),
+                        ),
+                        (
+                            "create_date",
+                            "<=",
+                            fields.Datetime.add(self.create_date, seconds=1),
                         ),
                         ("user_id", "=", self.user_id.id),
                     ]
