@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
 
-from odoo import fields, models
+from odoo import _, fields, models
 from odoo.tools.safe_eval import datetime, safe_eval
 
 _logger = logging.getLogger(__name__)
@@ -46,6 +46,7 @@ class AuditLog(models.Model):
         data = safe_eval(self.data or "{}", {"datetime": datetime})
         _logger.info("Data: %s" % data)
         RecordModel = self.env[self.model_id.model]
+        record = f"{self.model}({self.res_id})"
         for fname in set(data["new"].keys()) | set(data["old"].keys()):
             field = RecordModel._fields.get(fname)
             if field and (
@@ -55,7 +56,7 @@ class AuditLog(models.Model):
                 new_value = self._format_value(field, data["new"].get(fname, ""))
                 if old_value != new_value:
                     label = field.get_description(self.env)["string"]
-                    content.append([label, old_value, new_value])
+                    content.append([label, record, old_value, new_value])
         for (fname, sub_logs) in self._get_sub_logs():
             for sub_log in sub_logs:
                 sub_log_content = sub_log._get_content()
@@ -64,3 +65,21 @@ class AuditLog(models.Model):
                     log[0] = f"{fname} -> {log[0]}"
                 content += sub_log_content
         return content
+
+    def _render_html(self):
+        for rec in self:
+            thead = ""
+            for head in (_("Field"), _("Record"), _("Old value"), _("New value")):
+                thead += "<th>%s</th>" % head
+            thead = "<thead><tr>%s</tr></thead>" % thead
+            tbody = ""
+            for line in rec._get_content():
+                row = ""
+                for item in line:
+                    row += "<td>%s</td>" % item
+                tbody += "<tr>%s</tr>" % row
+            tbody = "<tbody>%s</tbody>" % tbody
+            rec.data_html = (
+                '<table class="o_list_view table table-condensed "'
+                '"table-striped">%s%s</table>' % (thead, tbody)
+            )
