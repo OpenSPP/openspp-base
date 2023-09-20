@@ -12,5 +12,48 @@
         }"
         />
     </function>
-
+    <function model="audit.rule" name="create_rules">
+        <value
+            model="audit.rule"
+            eval="{
+            'name': 'Registrant ID Admin Rule',
+            'log_create': True,
+            'model_id': obj().env['ir.model'].search([('model', '=', 'g2p.reg.id')]).id,
+            'group_id': obj().env.ref('g2p_registry_base.group_g2p_admin').id,
+        }"
+        />
+    </function>
+    <function model="audit.rule" name="create_rules">
+        <value
+            model="audit.rule"
+            eval="{
+            'name': 'Phone Numbers Admin Rule',
+            'log_create': True,
+            'model_id': obj().env['ir.model'].search([('model', '=', 'g2p.phone.number')]).id,
+            'group_id': obj().env.ref('g2p_registry_base.group_g2p_admin').id,
+        }"
+        />
+    </function>
+    <function model="audit.rule" name="create_rules">
+        <value
+            model="audit.rule"
+            eval="{
+            'name': 'Group Membership Admin Rule',
+            'log_create': True,
+            'model_id': obj().env['ir.model'].search([('model', '=', 'g2p.group.membership')]).id,
+            'group_id': obj().env.ref('g2p_registry_base.group_g2p_admin').id,
+        }"
+        />
+    </function>
+    <function model="audit.rule" name="create_rules">
+        <value
+            model="audit.rule"
+            eval="{
+            'name': 'Service Points Admin Rule',
+            'log_create': True,
+            'model_id': obj().env['ir.model'].search([('model', '=', 'spp.service.point')]).id,
+            'group_id': obj().env.ref('g2p_registry_base.group_g2p_admin').id,
+        }"
+        />
+    </function>
 </odoo>

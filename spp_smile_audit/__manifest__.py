@@ -13,9 +13,11 @@
     "depends": [
         "base",
         "smile_audit",
-        # "g2p_registry_base",
-        # "g2p_registry_group",
-        # "g2p_registry_individual",
+        "g2p_registry_base",
+        "g2p_registry_group",
+        "g2p_registry_individual",
+        "g2p_registry_membership",
+        "spp_service_points",
     ],
     "external_dependencies": {},
     "data": [
