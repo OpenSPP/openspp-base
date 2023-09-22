@@ -5,7 +5,7 @@ from odoo import _, fields, models
 from odoo.tools.safe_eval import datetime, safe_eval
 
 _logger = logging.getLogger(__name__)
-CUSTOM_LOG_MODELS = "g2p.program"
+CUSTOM_LOG_MODELS = ["g2p.program"]
 
 
 class AuditLog(models.Model):
