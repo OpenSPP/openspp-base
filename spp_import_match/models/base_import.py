@@ -1,5 +1,6 @@
 import base64
 import csv
+import logging
 from io import BytesIO, StringIO, TextIOWrapper
 from os.path import splitext
 
@@ -8,6 +9,7 @@ from odoo.models import fix_import_export_id_paths
 
 from odoo.addons.queue_job.exception import FailedJobError
 
+_logger = logging.getLogger(__name__)
 # options defined in base_import/import.js
 OPT_HAS_HEADER = "headers"
 OPT_SEPARATOR = "separator"
@@ -26,11 +28,12 @@ DEFAULT_CHUNK_SIZE = 100
 class SPPBaseImport(models.TransientModel):
     _inherit = "base_import.import"
 
-    def do(self, fields, columns, options, dryrun=False):
+    def execute_import(self, fields, columns, options, dryrun=False):
         if dryrun or not options.get(OPT_USE_QUEUE):
             # normal import
-            return super().do(fields, columns, options, dryrun=dryrun)
-
+            _logger.info("Doing Normal Import")
+            return super().execute_import(fields, columns, options, dryrun=dryrun)
+        _logger.info("Started Asynchronous Import: %s" % self.res_model)
         # asynchronous import
         try:
             data, import_fields = self._convert_import_data(fields, options)
@@ -46,9 +49,8 @@ class SPPBaseImport(models.TransientModel):
             translated_model_name = search_result[0][1]
         else:
             translated_model_name = self._description
-        description = _("Import %s from file %s") % (
-            translated_model_name,
-            self.file_name,
+        description = _("Import {} from file {}").format(
+            translated_model_name, self.file_name
         )
         attachment = self._create_csv_attachment(
             import_fields, data, options, self.file_name
@@ -61,7 +63,7 @@ class SPPBaseImport(models.TransientModel):
             file_name=self.file_name,
         )
         self._link_attachment_to_job(delayed_job, attachment)
-        return []
+        return {}
 
     def _link_attachment_to_job(self, delayed_job, attachment):
         queue_job = self.env["queue.job"].search(
@@ -124,7 +126,7 @@ class SPPBaseImport(models.TransientModel):
         options,
         file_name="file.csv",
     ):
-        """ Split a CSV attachment in smaller import jobs """
+        """Split a CSV attachment in smaller import jobs"""
         model_obj = self.env[model_name]
         fields, data = self._read_csv_attachment(attachment, options)
         padding = len(str(len(data)))
@@ -138,8 +140,7 @@ class SPPBaseImport(models.TransientModel):
             model_obj, fields, data, chunk_size
         ):
             chunk = str(priority - INIT_PRIORITY).zfill(padding)
-            description = _("Import %s from file %s - #%s - lines %s to %s")
-            description = description % (
+            description = _("Import {} from file {} - #{} - lines {} to {}").format(
                 translated_model_name,
                 file_name,
                 chunk,
