@@ -19,3 +19,7 @@ class SppDataSource(models.Model):
     data_source_path_ids = fields.One2many(
         "spp.data.source.path", "data_source_id", string="URL Paths"
     )
+
+    _sql_constraints = [
+        ("name_uniq", "unique(name)", "The name of the data source must be unique !"),
+    ]

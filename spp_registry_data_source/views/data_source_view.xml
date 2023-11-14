@@ -52,7 +52,7 @@
   <!-- Sub-menu item/Action -->
   <menuitem
         id="menu_data_source"
-        name="Date Source"
+        name="Data Source"
         parent="base.menu_administration"
         sequence="200"
         action="spp_data_source_action_window"
