@@ -27,6 +27,13 @@ class SppDataSource(models.Model):
     @api.model
     @api.returns("self", lambda value: value.id)
     def create_data_source(self, vals):
+        """
+        The function creates a data source and its associated paths if it doesn't already exist.
+
+        :param vals: The `vals` parameter is a dictionary that contains the values to be used for
+        creating a new data source. It may contain the following keys:
+        :return: the data_source_id.
+        """
         name = vals.get("name")
 
         data_source_id = self.env["spp.data.source"].search(
