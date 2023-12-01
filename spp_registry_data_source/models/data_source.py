@@ -19,6 +19,14 @@ class SppDataSource(models.Model):
     data_source_path_ids = fields.One2many(
         "spp.data.source.path", "data_source_id", string="URL Paths"
     )
+    data_source_field_mapping_ids = fields.One2many(
+        "spp.data.source.field.mapping",
+        "data_source_id",
+    )
+    data_source_parameter_ids = fields.One2many(
+        "spp.data.source.parameter",
+        "data_source_id",
+    )
 
     _sql_constraints = [
         ("name_uniq", "unique(name)", "The name of the data source must be unique !"),
@@ -57,3 +65,9 @@ class SppDataSource(models.Model):
                 )
 
         return data_source_id
+
+    def get_field_mapping_key_value_pair(self):
+        return self.data_source_field_mapping_ids.get_mapping()
+
+    def get_parameter_key_value_pair(self):
+        return self.data_source_parameter_ids.get_mapping()
