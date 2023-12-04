@@ -5,7 +5,7 @@ class DataSourceKeyValueMixin(models.AbstractModel):
     _name = "spp.data.source.key.value.mixin"
     _description = "Data Source Key Value Mixin"
 
-    data_source_id = fields.Many2one("spp.data.source")
+    data_source_id = fields.Many2one("spp.data.source", required=True)
     key = fields.Char(required=True, index=True)
     value = fields.Text(required=True)
 
@@ -33,6 +33,11 @@ class SppDataSourcePath(models.Model):
     _description = "SPP Data Source Path"
 
     key_uniq_error_message = "Path Name must be unique in this Data Source."
+
+    def get_full_path(self):
+        self.ensure_one()
+
+        return f"{self.data_source_id.url}{self.value}"
 
 
 class DataSourceFieldMapping(models.Model):
