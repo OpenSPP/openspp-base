@@ -71,3 +71,10 @@ class SppDataSource(models.Model):
 
     def get_parameter_key_value_pair(self):
         return self.data_source_parameter_ids.get_mapping()
+
+    def get_source_path_id_key_full_path_pair(self):
+        pair = {}
+        for path_id in self.data_source_path_ids:
+            pair[path_id.key] = path_id.get_full_path()
+
+        return pair

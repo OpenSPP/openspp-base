@@ -17,12 +17,7 @@ class DataSourceKeyValueMixin(models.AbstractModel):
     def get_mapping(self):
         mapping = {}
         for rec in self:
-            mapping.update(
-                {
-                    "key": rec.key,
-                    "value": rec.value,
-                }
-            )
+            mapping[rec.key] = rec.value
 
         return mapping
 
