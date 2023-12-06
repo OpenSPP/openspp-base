@@ -35,36 +35,16 @@ class SppDataSource(models.Model):
     @api.model
     @api.returns("self", lambda value: value.id)
     def create_data_source(self, vals):
-        """
-        The function creates a data source and its associated paths if it doesn't already exist.
-
-        :param vals: The `vals` parameter is a dictionary that contains the values to be used for
-        creating a new data source. It may contain the following keys:
-        :return: the data_source_id.
-        """
-        name = vals.get("name")
-
-        data_source_id = self.env["spp.data.source"].search(
-            [("name", "=", name)], limit=1
-        )
-
-        if not data_source_id:
-            paths = []
-            if vals.get("paths"):
-                paths = vals.pop("paths")
-
-            data_source_id = self.env["spp.data.source"].create(vals)
-
-            for path in paths:
-                self.env["spp.data.source.path"].create(
-                    {
-                        "data_source_id": data_source_id.id,
-                        "name": path.get("name"),
-                        "path": path.get("path"),
-                    }
-                )
-
-        return data_source_id
+        data_source_id = self.search([("name", "=", vals.get("name"))], limit=1)
+        if data_source_id:
+            return data_source_id
+        paths, path_create_vals = vals.pop("paths", []), []
+        for path in paths:
+            path_create_vals.append(
+                (0, 0, {"name": path.get("name"), "path": path.get("path")})
+            )
+        vals["data_source_path_ids"] = path_create_vals
+        return self.create(vals)
 
     def get_field_mapping_key_value_pair(self):
         return self.data_source_field_mapping_ids.get_mapping()
